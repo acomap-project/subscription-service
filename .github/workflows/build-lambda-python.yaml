@@ -81,6 +81,9 @@ jobs:
             layer_arn=$(aws lambda list-layer-versions --layer-name ${{ inputs.lambda-layer-name }} --region ${{ inputs.region }} --query 'LayerVersions[0].LayerVersionArn' --output text)
             echo ::set-output name=layer_arn::$layer_arn
           fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
       - name: Deploy code to Lambda
         uses: denzalman/lambda-python-action@v1.2.1
@@ -90,5 +93,5 @@ jobs:
           requirements_txt: 'requirements.txt'
           lambda_layer_arn: ${{ steps.get_layer_arn.outputs.layer_arn }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}

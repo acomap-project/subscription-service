@@ -26,8 +26,6 @@ on:
         type: string
         default: "dev"
     secrets:
-      account-id:
-        required: true
       aws-access-key-id:
         required: true
       aws-secret-access-key:
@@ -76,6 +74,14 @@ jobs:
           cp -r functions/email-content-generator-function lambda_package/
           cd lambda_package
           zip -r ../lambda_package.zip .
+      
+      - name: Get ARN by layer name
+        id: get_layer_arn
+        run: |
+          if [ -n "${{ inputs.lambda-layer-name }}" ]; then
+            layer_arn=$(aws lambda list-layer-versions --layer-name ${{ inputs.lambda-layer-name }} --region ${{ inputs.region }} --query 'LayerVersions[0].LayerVersionArn' --output text)
+            echo ::set-output name=layer_arn::$layer_arn
+          fi
 
       - name: Deploy code to Lambda
         uses: denzalman/lambda-python-action@v1.2.1
@@ -83,7 +89,7 @@ jobs:
           lambda_function_name: ${{ inputs.lambda-function-name }}
           lambda_region: ${{ inputs.region }}
           requirements_txt: 'requirements.txt'
-          
+          lambda_layer_arn: ${{ steps.get_layer_arn.outputs.layer_arn }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

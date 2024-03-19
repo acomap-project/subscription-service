@@ -90,7 +90,6 @@ jobs:
         with:
           lambda_function_name: ${{ inputs.lambda-function-name }}
           lambda_region: ${{ inputs.region }}
-          requirements_txt: 'requirements.txt'
           lambda_layer_arn: ${{ steps.get_layer_arn.outputs.layer_arn }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}

@@ -65,7 +65,7 @@ jobs:
       
       - name: Upload lambda layer
         run:
-          output=${aws lambda publish-layer-version --layer-name ${{ inputs.layer_name }} --description "Lambda layer for Python package" --license-info "MIT" --compatible-runtimes python3.8 --zip-file fileb://lambda-layer.zip}
+          output=${aws lambda publish-layer-version --layer-name "${{ inputs.layer_name }}" --description "Lambda layer for Python package" --license-info "MIT" --compatible-runtimes python3.8 --zip-file fileb://lambda-layer.zip}
           layer_version_arn=$(echo $output | jq -r '.LayerVersionArn')
           echo ::set-output name=layer_version_arn::$layer_version_arn
         env:

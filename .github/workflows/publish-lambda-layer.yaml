@@ -1,0 +1,70 @@
+name: CI
+
+
+on:
+  workflow_call:
+    inputs:
+      layer_name:
+        type: string
+        description: 'Name of the lambda layer'
+        required: true
+    secrets:
+      account-id:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+jobs:
+  does_dependency_change:
+    runs-on: ubuntu-latest
+    outputs:
+      is_modified: ${{ steps.filter.outputs.dependency_changes }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          # detect changes for current branch
+          base: ${{ github.ref }}
+          filters: |
+            dependency_changes:
+              - 'requirements.txt'
+  
+  install-and-upload-lambda-layer:
+    needs: does_dependency_change
+    if: needs.does_dependency_change.outputs.is_modified == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install awscli --upgrade --user
+          export PATH=$PATH:$HOME/.local/bin
+          aws --version
+      
+      - name: Create lambda layer
+        run: |
+          mkdir -p lambda-layer/python
+          pip install -r requirements.txt -t lambda-layer/python
+      
+      - name: Zip lambda layer
+        run: zip -r lambda-layer.zip lambda-layer
+      
+      - name: Upload lambda layer
+        run:
+          aws lambda publish-layer-version --layer-name notification-service-packages --description "Lambda layer for Python package" --license-info "MIT" --compatible-runtimes python3.8 --zip-file fileb://lambda-layer.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-southeast-1

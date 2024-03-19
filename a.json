@@ -1,0 +1,16 @@
+{
+    "area_list": [
+        {
+            "district": "Binh Thanh",
+            "city": "Ho Chi Minh",
+            "district_code": "binh-thanh",
+            "city_code": "ho-chi-minh"
+        },
+        {
+            "district": "Quận 1",
+            "city": "Ho Chi Minh",
+            "district_code": "quan-1",
+            "city_code": "ho-chi-minh"
+        }
+    ]   
+}

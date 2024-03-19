@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  publish-packages:
+    uses: ./.github/workflows/publish-lambda-layer.yaml
+    with:
+      layer_name: NOTIFICATION_common-layer
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+
+  # build-email-content-generator-function:
+  #   uses: ./.github/workflows/build-lambda-python.yaml
+  #   with:
+  #     name: email-content-generator-function
+  #     lambda-function-name: NOTIFICATION_email-content-generator-function
+  #     region: ap-southeast-1
+  #     uploads: |
+  #       functions/email-content-generator-function/static
+  #   secrets:
+  #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     account-id: ${{ secrets.AWS_ACCOUNT_ID }}

@@ -1,0 +1,89 @@
+name: build-lambda-function
+
+on:
+  workflow_call:
+    inputs:
+      region:
+        required: true
+        type: string
+        description: "AWS region"
+      name:
+        required: true
+        type: string
+      lambda-function-name:
+        required: true
+        type: string
+      lambda-layer-name:
+        required: false
+        type: string
+        default: ""
+      uploads:
+        required: false
+        type: string
+        default: ""
+      env:
+        required: false
+        type: string
+        default: "dev"
+    secrets:
+      account-id:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      is_modified: ${{ steps.filter.outputs.code_changes == 'true' || steps.filter.outputs.env_changes == 'true' || steps.filter.outputs.version_changes == 'true'}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          # detect changes for current branch
+          base: ${{ github.ref }}
+          filters: |
+            code_changes:
+              - 'functions/${{ inputs.name }}/**'
+              - '.github/workflows/**'
+            env_changes:
+              - 'env/${{ inputs.env }}/${{ inputs.name }}.env'
+            version_changes:
+              - version
+
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        working-directory: functions/${{ inputs.name }}
+        run: pip install -r requirements.txt
+
+      - name: Build Lambda package
+        working-directory: functions/${{ inputs.name }}
+        run: |
+          mkdir lambda_package
+          cp -r functions/email-content-generator-function lambda_package/
+          cd lambda_package
+          zip -r ../lambda_package.zip .
+
+      - name: Deploy code to Lambda
+        uses: denzalman/lambda-python-action@v1.2.1
+        with:
+          lambda_function_name: ${{ inputs.lambda-function-name }}
+          lambda_region: ${{ inputs.region }}
+          requirements_txt: 'requirements.txt'
+          
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

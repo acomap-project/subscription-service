@@ -31,10 +31,10 @@ jobs:
           filters: |
             dependency_changes:
               - 'requirements.txt'
-  
+
   install-and-upload-lambda-layer:
-    needs: does_dependency_change
-    if: needs.does_dependency_change.outputs.is_modified == 'true'
+    # needs: does_dependency_change
+    # if: needs.does_dependency_change.outputs.is_modified == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

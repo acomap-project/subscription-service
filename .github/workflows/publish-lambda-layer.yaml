@@ -20,7 +20,7 @@ jobs:
   does_dependency_change:
     runs-on: ubuntu-latest
     outputs:
-      is_modified: ${{ steps.filter.outputs.dependency_changes }} == 'true' || ${{ steps.filter.outputs.version_changes }} == 'true'
+      is_modified: ${{ steps.filter.outputs.dependency_changes == 'true' || steps.filter.outputs.version_changes == 'true' }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2

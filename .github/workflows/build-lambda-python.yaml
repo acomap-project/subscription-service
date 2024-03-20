@@ -89,5 +89,5 @@ jobs:
           function_name: ${{ inputs.lambda-function-name }}
           zip_file: lambda_package.zip
           runtime: python3.11
-          handler: src/lambda_handler.handler
+          handler: src/lambda.handler
           layers: ${{ steps.get_layer_arn.outputs.layer_arn }}

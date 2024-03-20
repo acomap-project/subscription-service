@@ -10,7 +10,8 @@ jobs:
   publish-packages:
     uses: ./.github/workflows/publish-lambda-layer.yaml
     with:
-      layer_name: NOTIFICATION_common-layer
+      layer-name: NOTIFICATION_common-layer
+      python-version: 3.11
     secrets:
       aws-region: ap-southeast-1
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -46,7 +46,6 @@ jobs:
           filters: |
             code_changes:
               - 'functions/${{ inputs.name }}/**'
-              - '.github/workflows/**'
             env_changes:
               - 'env/${{ inputs.env }}/${{ inputs.name }}.env'
             version_changes:
@@ -89,6 +88,6 @@ jobs:
           aws_region: ${{ inputs.region }}
           function_name: ${{ inputs.lambda-function-name }}
           zip_file: lambda_package.zip
-          runtime: python3.8
+          runtime: python3.11
           handler: src/lambda_handler.handler
           layers: ${{ steps.get_layer_arn.outputs.layer_arn }}

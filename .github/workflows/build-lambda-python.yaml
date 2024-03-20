@@ -79,6 +79,12 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+        
+      - name: Load env file
+        id: readenv
+        env:
+          env_file: env/${{ inputs.env }}/${{ inputs.name }}.env
+        run: echo "::set-output name=env::$(cat ${{env.env_file}} | tr '\n' ',')"
 
       - name: Deploy
         uses: appleboy/lambda-action@master
@@ -89,3 +95,4 @@ jobs:
           function_name: ${{ inputs.lambda-function-name }}
           zip_file: lambda_package.zip
           layers: ${{ steps.get_layer_arn.outputs.layer_arn }}
+          environment: ${{ steps.readenv.outputs.env }}

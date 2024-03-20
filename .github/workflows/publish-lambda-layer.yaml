@@ -60,7 +60,7 @@ jobs:
           pip install -r requirements.txt -t lambda-layer/python
       
       - name: Zip lambda layer
-        run: zip -r lambda-layer.zip lambda-layer
+        run: zip -r lambda-layer.zip lambda-layer/python
       
       - name: Upload lambda layer
         run:

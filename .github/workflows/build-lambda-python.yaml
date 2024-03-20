@@ -85,12 +85,13 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
 
-      - name: Deploy code to Lambda
-        uses: denzalman/lambda-python-action@v1.2.1
+      - name: Deploy
+        uses: appleboy/lambda-action@master
         with:
-          lambda_function_name: ${{ inputs.lambda-function-name }}
-          lambda_region: ${{ inputs.region }}
-          lambda_layer_arn: ${{ steps.get_layer_arn.outputs.layer_arn }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+          aws_access_key_id: ${{ secrets.aws-access-key-id }}
+          aws_secret_access_key: ${{ secrets.aws-secret-access-key }}
+          aws_region: ${{ inputs.region }}
+          function_name: ${{ inputs.lambda-function-name }}
+          zip_file: lambda_package.zip
+          runtime: python3.8
+          layers: ${{ steps.get_layer_arn.outputs.layer_arn }}

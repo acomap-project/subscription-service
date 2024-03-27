@@ -10,23 +10,21 @@ jobs:
   publish-packages:
     uses: ./.github/workflows/publish-lambda-layer.yaml
     with:
-      layer-name: NOTIFICATION_common-layer
+      layer-name: SUBSCRIPTION_common-layer
       python-version: 3.11
     secrets:
       aws-region: ap-southeast-1
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  build-email-content-generator-function:
+  build-subscription-function:
     needs: publish-packages
     uses: ./.github/workflows/build-lambda-python.yaml
     with:
-      name: email-content-generator-function
-      lambda-function-name: NOTIFICATION_email-content-generator-function
-      lambda-layer-name: NOTIFICATION_common-layer
+      name: subscription-function
+      lambda-function-name: SUBSCRIPTION_subscription-function
+      lambda-layer-name: SUBSCRIPTION_common-layer
       region: ap-southeast-1
-      uploads: |
-        functions/email-content-generator-function/static
     secrets:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

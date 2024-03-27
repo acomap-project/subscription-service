@@ -1,3 +1,5 @@
 functions/**/venv/**
 functions/**/.env
 functions/**/__pycache__/**
+
+.vscode

@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import json
+from typing import Dict, List
 import boto3
 from botocore.exceptions import ClientError
 import os
@@ -16,7 +17,7 @@ class AccommodationRecord:
     publishedDate: str
 
 class PreprocessAccomsEvent:
-    Records: list[AccommodationRecord]
+    Records: List[Dict]
 
 class Accommodation:
     region: str
@@ -56,7 +57,7 @@ def init():
 def handler(event: PreprocessAccomsEvent, context):
     init()
 
-    accomList = event['Records']
+    accomList: List[AccommodationRecord] = [json.loads(record['body']) for record in event['Records']]
     region_list = set()
     for accom in accomList:
         region = f"{accom['cityCode']}_{accom['areaCode']}"

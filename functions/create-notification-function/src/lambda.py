@@ -1,4 +1,5 @@
 import datetime
+from typing import Dict, List
 import boto3
 import json
 from jinja2 import Environment, FileSystemLoader
@@ -17,7 +18,7 @@ class CreateNotificationEventRecord:
     area_code: str
 
 class CreateNotificationEvent:
-    Records: list[CreateNotificationEventRecord]
+    Records: List[Dict]
 
 class Subscription:
     subscription_region: str
@@ -70,7 +71,7 @@ def init():
 def handler(event: CreateNotificationEvent, context):
     init()
 
-    record: CreateNotificationEventRecord = event['Records'][0] # only handle one record at a time
+    record: CreateNotificationEventRecord = json.loads(event['Records'][0]['body'])  # only handle one record at a time
     accom_list = accomTable.query(
         IndexName='region-index',
         KeyConditionExpression='#rg = :region and created_date = :created_date',

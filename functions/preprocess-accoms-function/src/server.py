@@ -1,3 +1,9 @@
+# load environment variables from .env file
+import os
+from dotenv import load_dotenv
+parent_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(parent_dir, '../.env'))
+
 from flask import Flask, jsonify, request
 import importlib
 
@@ -6,8 +12,8 @@ handler = lambda_module.handler
 
 app = Flask(__name__)
 
-@app.route('/generate-email-template', methods=['POST'])
-def generateEmailTemplate():
+@app.route('/preprocess-accoms', methods=['POST'])
+def preprocessAccoms():
     data = request.get_json()
 
     try:
@@ -15,7 +21,7 @@ def generateEmailTemplate():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({
-            'error': str(e)
+            'error': e
         }), 500
 
 if __name__ == '__main__':

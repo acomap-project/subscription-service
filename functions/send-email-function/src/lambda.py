@@ -11,11 +11,7 @@ root_dir = os.path.join(
 )
 print(f'root_dir: {root_dir}')
 
-class SendEmailEventRecord:
-    subject: str
-
 class SendEmailEvent:
-    MessageId: str
     Records: List[Dict]
 
 def init():
@@ -50,25 +46,28 @@ def init():
 def handler(event: SendEmailEvent, context):
     init()
 
-    msgId = event['MessageId']
+    record = event['Records'][0]
+
+    # check if message payload is valid
+    s3KeyId = record['messageAttributes']['queue_key_id']['StringValue']
+    if s3KeyId is None:
+        raise Exception('Missing queue_key_id in the event')
+    
+    # check if message ID is already processed
+    msgId = record['messageId']
     item = messageTrackingTable.get_item(
         Key={
             'message_id': msgId
         }
     ).get('Item')
-
     if item is not None:
         print(f"Message ID {msgId} already processed")
         return {
             'result': 'SUCCESS'
         }
 
-    record: SendEmailEventRecord = json.loads(event['Records'][0]['Body'])  # only handle one record at a time
-    s3KeyId = event['Records'][0]['MessageAttributes']['queue_key_id']['StringValue']
-
-    if s3KeyId is None:
-        raise Exception('Missing queue_key_id in the event')
-    
+    # process logic
+    body = json.loads(record['body'])
     try:
         indexHtmlKey = f"{s3KeyId}/index.html"
         receiverListJsonKey = f"{s3KeyId}/receiver_list.json"

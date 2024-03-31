@@ -4,6 +4,7 @@ import boto3
 import json
 from jinja2 import Environment, FileSystemLoader
 import os
+from decimal import Decimal
 
 root_dir = os.path.join(
     os.path.dirname(os.path.join(os.path.abspath(__file__))), 
@@ -74,10 +75,10 @@ def handler(event: CreateNotificationEvent, context):
     record: CreateNotificationEventRecord = json.loads(event['Records'][0]['body'])  # only handle one record at a time
     accom_list = accomTable.query(
         IndexName='region-index',
-        KeyConditionExpression='#rg = :region and created_date = :created_date',
+        KeyConditionExpression='#rg = :region and sent_date = :sent_date',
         ExpressionAttributeValues={
             ':region': record['region'],
-            ':created_date': record['created_date']
+            ':sent_date': record['created_date']
         },
         ExpressionAttributeNames={
             '#rg': 'region',
@@ -88,7 +89,7 @@ def handler(event: CreateNotificationEvent, context):
     notification = notificationTable.get_item(
         Key={
             'region': record['region'],
-            'created_date': record['created_date']
+            'sent_date': record['created_date']
         }
     ).get('Item')
 
@@ -116,9 +117,10 @@ def handler(event: CreateNotificationEvent, context):
     # Put an item in dynamoDB
     notification: Notification = {
         'region': record['region'],
-        'created_date': datetime.datetime.now().strftime('%Y/%m/%d'),
+        'sent_date': record['created_date'],
         'city_code': record['city_code'],
         'area_code': record['area_code'],
+        'created_at': Decimal(str(datetime.datetime.now().timestamp()))
     }
 
     # put item to dynamoDB
@@ -145,7 +147,7 @@ def get_subscription_list(region: str):
 def send_email_for_notification(notification: dict, subscription_list: list[Subscription], item_list: list[dict]):
     queue_key_id = f"{notification['created_date']}/{notification['region']}"
     rendered_template = template.render({
-        'date': notification['created_date'],
+        'date': notification['sent_date'],
         'city_code': notification['city_code'],
         'area_code': notification['area_code'],
         'items': item_list
@@ -167,7 +169,7 @@ def send_email_for_notification(notification: dict, subscription_list: list[Subs
     sqs.send_message(
         QueueUrl=sqsQueueUrl,
         MessageBody=json.dumps({
-            'subject': f"Notification for {notification['region']} on {notification['created_date']}",
+            'subject': f"Notification for {notification['region']} on {notification['sent_date']}",
         }),
         MessageAttributes={
             'queue_key_id': {

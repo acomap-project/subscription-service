@@ -117,8 +117,6 @@ def handler(event: CreateNotificationEvent, context):
     notification: Notification = {
         'region': record['region'],
         'created_date': datetime.datetime.now().strftime('%Y/%m/%d'),
-        'status': 'ATTEMPT',
-        'sent_time': None,
         'city_code': record['city_code'],
         'area_code': record['area_code'],
     }
@@ -169,8 +167,7 @@ def send_email_for_notification(notification: dict, subscription_list: list[Subs
     sqs.send_message(
         QueueUrl=sqsQueueUrl,
         MessageBody=json.dumps({
-            'region': notification['region'],
-            'created_date': notification['created_date'],
+            'subject': f"Notification for {notification['region']} on {notification['created_date']}",
         }),
         MessageAttributes={
             'queue_key_id': {

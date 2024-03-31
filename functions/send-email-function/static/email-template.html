@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+
+        <style>
+            table {
+                width: 100%;
+            }
+            table, th, td {
+                border-collapse: collapse;
+                border: 1px solid black;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+
+            th:not(:nth-child(2)) {
+                text-align: center;
+            }
+
+            tr > td:not(:nth-child(2)) {
+                text-align: center;
+            }
+
+            table * {
+                text-align: left;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Thông tin nhà trọ mới nhất trong ngày {{ date }}</h1>
+        <div>
+            <p>
+                Thành phố: 
+                <span>{{ city_code }}</span>
+            </p>
+            <p>
+                Khu vực: 
+                <span>{{ area_code }}</span>
+            </p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Địa chỉ</th>
+                    <th>Gía tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>
+                            <a href="{{ item.propUrl }}">
+                                {{ item.address }}
+                            </a>
+                        </td>
+                        <td>{{ item.price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

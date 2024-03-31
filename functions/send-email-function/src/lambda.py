@@ -45,6 +45,8 @@ def init():
 
 def handler(event: SendEmailEvent, context):
     init()
+    
+    print(event)
 
     record = event['Records'][0]
 
@@ -67,7 +69,7 @@ def handler(event: SendEmailEvent, context):
         }
 
     # process logic
-    body = json.loads(record['body'])
+    recordBody = json.loads(record['body'])
     try:
         indexHtmlKey = f"{s3KeyId}/index.html"
         receiverListJsonKey = f"{s3KeyId}/receiver_list.json"
@@ -89,8 +91,6 @@ def handler(event: SendEmailEvent, context):
         raise Exception(f"Error while getting the content of index.html and receiver_list.json: {e}")
 
     try:
-        body = indexHtmlContent
-
         response = ses.send_email(
             Source=senderEmail,
             Destination={
@@ -98,15 +98,16 @@ def handler(event: SendEmailEvent, context):
             },
             Message={
                 'Subject': {
-                    'Data': body['subject']
+                    'Data': recordBody['subject']
                 },
                 'Body': {
                     'Html': {
-                        'Data': body
+                        'Data': indexHtmlContent
                     }
                 }
             }
         )
+        print('Send email successfully')
         messageTrackingTable.put_item(
             Item={
                 'message_id': msgId,

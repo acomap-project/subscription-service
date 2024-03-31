@@ -49,7 +49,7 @@ def handler(event: SendEmailEvent, context):
     record = event['Records'][0]
 
     # check if message payload is valid
-    s3KeyId = record['messageAttributes']['queue_key_id']['StringValue']
+    s3KeyId = record['messageAttributes']['queue_key_id']['stringValue']
     if s3KeyId is None:
         raise Exception('Missing queue_key_id in the event')
     

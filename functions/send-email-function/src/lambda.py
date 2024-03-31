@@ -98,7 +98,7 @@ def handler(event: SendEmailEvent, context):
             },
             Message={
                 'Subject': {
-                    'Data': record['subject']
+                    'Data': body['subject']
                 },
                 'Body': {
                     'Html': {

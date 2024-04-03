@@ -71,6 +71,7 @@ jobs:
         run:
           output=$(aws lambda publish-layer-version --layer-name "${{ inputs.layer-name }}" --description "Lambda layer for Python package" --license-info "MIT" --compatible-runtimes python${{ inputs.python-version }} --zip-file fileb://lambda-layer.zip)
           layer_version_arn=$(echo $output | jq -r '.LayerVersionArn')
+          echo $layer_version_arn
           echo ::set-output name=layer_version_arn::$layer_version_arn
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}

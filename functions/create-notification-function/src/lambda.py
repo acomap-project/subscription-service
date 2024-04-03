@@ -89,12 +89,12 @@ def handler(event: CreateNotificationEvent, context):
     notification = notificationTable.get_item(
         Key={
             'region': record['region'],
-            'sent_date': record['created_date']
+            'sent_date': record['sent_date']
         }
     ).get('Item')
 
     if notification is not None:
-        print(f"Notification already exists for region {record['region']} and created_date {record['created_date']}")
+        print(f"Notification already exists for region {record['region']} and created_date {record['sent_date']}")
         return {
             'result': 'SUCCESS',
         }

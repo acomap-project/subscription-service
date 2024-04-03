@@ -78,7 +78,7 @@ def handler(event: CreateNotificationEvent, context):
         KeyConditionExpression='#rg = :region and sent_date = :sent_date',
         ExpressionAttributeValues={
             ':region': record['region'],
-            ':sent_date': record['created_date']
+            ':sent_date': record['sent_date']
         },
         ExpressionAttributeNames={
             '#rg': 'region',
@@ -117,7 +117,7 @@ def handler(event: CreateNotificationEvent, context):
     # Put an item in dynamoDB
     notification: Notification = {
         'region': record['region'],
-        'sent_date': record['created_date'],
+        'sent_date': record['sent_date'],
         'city_code': record['city_code'],
         'area_code': record['area_code'],
         'created_at': Decimal(str(datetime.datetime.now().timestamp()))

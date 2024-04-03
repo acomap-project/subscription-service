@@ -63,7 +63,7 @@ def handler(event: PreprocessAccomsEvent, context):
         region = f"{accom['cityCode']}_{accom['areaCode']}"
         region_list.add(region)
 
-    notification_created_at = datetime.datetime.now().strftime('%d/%m/%Y')
+    notification_sent_date = datetime.datetime.now().strftime('%d/%m/%Y')
 
     try:
         db = boto3.client('dynamodb')
@@ -76,7 +76,7 @@ def handler(event: PreprocessAccomsEvent, context):
                             'source': {'S': accom['source']},
                             'id': {'S': accom['id']},
                             'region': {'S': f"{accom['cityCode']}_{accom['areaCode']}"},
-                            'created_date': {'S': notification_created_at},
+                            'sent_date': {'S': notification_sent_date},
                             'published_date': {'S': accom['publishedDate']},
                             'address': {'S': accom['address']},
                             'prop_url': {'S': accom['propUrl']},
@@ -100,7 +100,7 @@ def handler(event: PreprocessAccomsEvent, context):
         city_code, area_code = region.split('_')
         message = {
             'region': region,
-            'created_date': notification_created_at,
+            'sent_date': notification_sent_date,
             'city_code': city_code,
             'area_code': area_code,
         }

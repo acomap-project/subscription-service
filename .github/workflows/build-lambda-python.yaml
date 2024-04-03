@@ -35,7 +35,7 @@ jobs:
   check_changes:
     runs-on: ubuntu-latest
     outputs:
-      is_modified: ${{ steps.filter.outputs.code_changes == 'true' || steps.filter.outputs.env_changes == 'true' || steps.filter.outputs.version_changes == 'true'}}
+      is_modified: ${{ steps.filter.outputs.code_changes == 'true' || steps.filter.outputs.env_changes == 'true' || steps.filter.outputs.version_changes == 'true' || steps.filter.outputs.dependency_changes == 'true'}}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -48,6 +48,8 @@ jobs:
               - 'functions/${{ inputs.name }}/**'
             env_changes:
               - 'env/${{ inputs.env }}/${{ inputs.name }}.env'
+            dependency_changes:
+              - 'requirements.txt'
             version_changes:
               - version
 

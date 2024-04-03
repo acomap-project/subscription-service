@@ -2,3 +2,4 @@ python-dotenv
 flask
 marshmallow
 serverless_wsgi
+jinja2

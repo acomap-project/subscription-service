@@ -145,7 +145,7 @@ def get_subscription_list(region: str):
 
 
 def send_email_for_notification(notification: dict, subscription_list: list[Subscription], item_list: list[dict]):
-    queue_key_id = f"{notification['created_date']}/{notification['region']}"
+    queue_key_id = f"{notification['sent_date']}/{notification['region']}"
     rendered_template = template.render({
         'date': notification['sent_date'],
         'city_code': notification['city_code'],

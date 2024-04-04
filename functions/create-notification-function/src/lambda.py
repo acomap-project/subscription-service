@@ -145,7 +145,8 @@ def get_subscription_list(region: str):
 
 
 def send_email_for_notification(notification: dict, subscription_list: list[Subscription], item_list: list[dict]):
-    queue_key_id = f"{notification['sent_date']}/{notification['region']}"
+    reversed_sent_date = datetime.datetime.strptime(notification['sent_date'], '%d/%m/%Y').strftime('%Y/%m/%d') # convert to YYYY/MM/DD
+    queue_key_id = f"{reversed_sent_date}/{notification['region']}"
     rendered_template = template.render({
         'date': notification['sent_date'],
         'city_code': notification['city_code'],

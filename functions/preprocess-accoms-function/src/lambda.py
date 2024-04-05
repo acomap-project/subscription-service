@@ -65,36 +65,20 @@ def handler(event: PreprocessAccomsEvent, context):
 
     notification_sent_date = datetime.datetime.now().strftime('%d/%m/%Y')
 
-    try:
-        db = boto3.client('dynamodb')
-        response = db.transact_write_items(
-            TransactItems=[
-                {
-                    'Put': {
-                        'TableName': accomTableName,
-                        'Item': {
-                            'source': {'S': accom['source']},
-                            'id': {'S': accom['id']},
-                            'region': {'S': f"{accom['cityCode']}_{accom['areaCode']}"},
-                            'sent_date': {'S': notification_sent_date},
-                            'published_date': {'S': accom['publishedDate']},
-                            'address': {'S': accom['address']},
-                            'prop_url': {'S': accom['propUrl']},
-                            'city_code': {'S': accom['cityCode']},
-                            'area_code': {'S': accom['areaCode']},
-                            'price': {'N': str(accom['price'])},
-                            'expired_at': {'N': str(int(datetime.datetime.now().timestamp()) + 24 * 60 * 60)}, # expired in 24 hours
-                        }
-                    }
-                }
-                for accom in accomList
-            ]
-        )
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-        raise e
+    duplicates = []
+    seen = set()
+    for accom in accomList:
+        if (accom['source'], accom['id']) in seen:
+            duplicates.append(accom)
+        else:
+            seen.add((accom['source'], accom['id']))
+
+    if duplicates:
+        print("Accommodations with duplicated source and id:")
+        for accom in duplicates:
+            print(f"Source: {accom['source']}, ID: {accom['id']}")
     else:
-        print("TransactWriteItems succeeded")
+        print("No accommodations with duplicated source and id.")
 
     for region in region_list:
         city_code, area_code = region.split('_')

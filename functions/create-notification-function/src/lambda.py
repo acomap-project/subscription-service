@@ -5,6 +5,7 @@ import json
 from jinja2 import Environment, FileSystemLoader
 import os
 from decimal import Decimal
+import repositories.region_repository as region_repo
 
 root_dir = os.path.join(
     os.path.dirname(os.path.join(os.path.abspath(__file__))), 
@@ -13,13 +14,12 @@ root_dir = os.path.join(
 print(f'root_dir: {root_dir}')
 
 class CreateNotificationEventRecord:
-    region: str
-    created_date: str
+    sent_date: str
     city_code: str
     area_code: str
 
 class CreateNotificationEvent:
-    Records: List[Dict]
+    Records: List[CreateNotificationEventRecord]
 
 class Subscription:
     subscription_region: str
@@ -30,11 +30,14 @@ class Subscription:
 
 class Notification:
     region: str
-    created_date: str
+    sent_date: str
     status: str
     sent_time: int
     city_code: str
     area_code: str
+    city: str
+    area: str
+    created_at: Decimal
 
 def init():
     global s3
@@ -73,11 +76,12 @@ def handler(event: CreateNotificationEvent, context):
     init()
 
     record: CreateNotificationEventRecord = json.loads(event['Records'][0]['body'])  # only handle one record at a time
+    region = f"{record['city_code']}_{record['area_code']}"
     accom_list = accomTable.query(
         IndexName='region-index',
         KeyConditionExpression='#rg = :region and sent_date = :sent_date',
         ExpressionAttributeValues={
-            ':region': record['region'],
+            ':region': region,
             ':sent_date': record['sent_date']
         },
         ExpressionAttributeNames={
@@ -88,13 +92,13 @@ def handler(event: CreateNotificationEvent, context):
     # Get notification by region and created_date
     notification = notificationTable.get_item(
         Key={
-            'region': record['region'],
+            'region': region,
             'sent_date': record['sent_date']
         }
     ).get('Item')
 
     if notification is not None:
-        print(f"Notification already exists for region {record['region']} and created_date {record['sent_date']}")
+        print(f"Notification already exists for region {region} and created_date {record['sent_date']}")
         return {
             'result': 'SUCCESS',
         }
@@ -103,7 +107,7 @@ def handler(event: CreateNotificationEvent, context):
     subscription_list: list[Subscription] = subscriptionTable.query(
         KeyConditionExpression='subscription_region = :subscription_region',
         ExpressionAttributeValues={
-            ':subscription_region': record['region']
+            ':subscription_region': region
         }
     )['Items']
 
@@ -114,12 +118,18 @@ def handler(event: CreateNotificationEvent, context):
             'result': 'SUCCESS',
         }
     
+    area_info = region_repo.get_area(record['city_code'], record['area_code'])
+    if area_info is None:
+        raise Exception(f'Area not found for city_code {record["city_code"]} and area_code {record["area_code"]}')
+    
     # Put an item in dynamoDB
     notification: Notification = {
-        'region': record['region'],
+        'region': region,
         'sent_date': record['sent_date'],
         'city_code': record['city_code'],
         'area_code': record['area_code'],
+        'city': area_info['city_name'],
+        'area': area_info['area_name'],
         'created_at': Decimal(str(datetime.datetime.now().timestamp()))
     }
 
@@ -128,23 +138,14 @@ def handler(event: CreateNotificationEvent, context):
 
     send_email_for_notification(notification, subscription_list, accom_list)
 
+    print(f"Notification created for region {region} on {record['sent_date']}")
+
     # Your code here
     return {
         'result': 'SUCCESS',
     }
 
-def get_subscription_list(region: str):
-    # query subscription list from subscriptionTable by city_code and area_code
-    response = subscriptionTable.query(
-        KeyConditionExpression='subscription_region = :subscription_region',
-        ExpressionAttributeValues={
-            ':subscription_region': region
-        }
-    )
-    return response['Items']
-
-
-def send_email_for_notification(notification: dict, subscription_list: list[Subscription], item_list: list[dict]):
+def send_email_for_notification(notification: Notification, subscription_list: list[Subscription], item_list: list[dict]):
     reversed_sent_date = datetime.datetime.strptime(notification['sent_date'], '%d/%m/%Y').strftime('%Y/%m/%d') # convert to YYYY/MM/DD
     queue_key_id = f"{reversed_sent_date}/{notification['region']}"
     rendered_template = template.render({
@@ -170,7 +171,7 @@ def send_email_for_notification(notification: dict, subscription_list: list[Subs
     sqs.send_message(
         QueueUrl=sqsQueueUrl,
         MessageBody=json.dumps({
-            'subject': f"Notification for {notification['region']} on {notification['sent_date']}",
+            'subject': f"[ACOMAP] Thông tin thuê phòng ở {notification['area']}, {notification['city']} trong ngày {notification['sent_date']}",
         }),
         MessageAttributes={
             'queue_key_id': {

@@ -1,4 +1,5 @@
 # load environment variables from .env file
+import json
 import os
 from dotenv import load_dotenv
 parent_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +16,10 @@ app = Flask(__name__)
 @app.route('/create-notification', methods=['POST'])
 def generateEmailTemplate():
     data = request.get_json()
+
+    data = {
+        'Records': [{**record, 'body': json.dumps(record['body'])} for record in data['Records']]
+    }
 
     try:
         result = handler(data, None)

@@ -1,0 +1,116 @@
+[
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-1",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 1"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-2",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 2"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-3",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 3"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-4",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 4"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-5",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 5"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-6",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 6"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-7",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 7"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-8",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 8"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-9",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 9"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-10",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 10"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-11",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 11"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-12",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Quận 12"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-binh-tan",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Bình Tân"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-binh-thanh",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Bình Thạnh"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-go-vap",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Gò Vấp"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-phu-nhuan",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Phú Nhuận"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-tan-binh",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Tân Bình"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-tan-phu",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Tân Phú"
+    },
+    {
+        "city_code": "ho-chi-minh",
+        "area_code": "quan-thu-duc",
+        "city_name": "Hồ Chí Minh",
+        "area_name": "Thủ Đức"
+    }
+]

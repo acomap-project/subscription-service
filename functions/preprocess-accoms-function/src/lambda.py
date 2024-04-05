@@ -57,21 +57,20 @@ def init():
 def handler(event: PreprocessAccomsEvent, context):
     init()
 
-    accomList: List[AccommodationRecord] = [json.loads(record['body']) for record in event['Records']]
-    region_list = set()
-    for accom in accomList:
-        region = f"{accom['cityCode']}_{accom['areaCode']}"
-        region_list.add(region)
+    accom_list: List[AccommodationRecord] = [json.loads(record['body']) for record in event['Records']]
 
-    notification_sent_date = datetime.datetime.now().strftime('%d/%m/%Y')
 
+    # Remove duplication in accom_list
+    unique_accom_list = []
     duplicates = []
     seen = set()
-    for accom in accomList:
+    for accom in accom_list:
         if (accom['source'], accom['id']) in seen:
             duplicates.append(accom)
+            continue
         else:
             seen.add((accom['source'], accom['id']))
+            unique_accom_list.append(accom)
 
     if duplicates:
         print("Accommodations with duplicated source and id:")
@@ -80,6 +79,47 @@ def handler(event: PreprocessAccomsEvent, context):
     else:
         print("No accommodations with duplicated source and id.")
 
+    # Get unique region list
+    region_list = set()
+    for accom in accom_list:
+        region = f"{accom['cityCode']}_{accom['areaCode']}"
+        region_list.add(region)
+
+    notification_sent_date = datetime.datetime.now().strftime('%d/%m/%Y')
+
+    # Write accom list to DynamoDB
+    try:
+        db = boto3.client('dynamodb')
+        response = db.transact_write_items(
+            TransactItems=[
+                {
+                    'Put': {
+                        'TableName': accomTableName,
+                        'Item': {
+                            'source': {'S': accom['source']},
+                            'id': {'S': accom['id']},
+                            'region': {'S': f"{accom['cityCode']}_{accom['areaCode']}"},
+                            'sent_date': {'S': notification_sent_date},
+                            'published_date': {'S': accom['publishedDate']},
+                            'address': {'S': accom['address']},
+                            'prop_url': {'S': accom['propUrl']},
+                            'city_code': {'S': accom['cityCode']},
+                            'area_code': {'S': accom['areaCode']},
+                            'price': {'N': str(accom['price'])},
+                            'expired_at': {'N': str(int(datetime.datetime.now().timestamp()) + 24 * 60 * 60)}, # expired in 24 hours
+                        }
+                    }
+                }
+                for accom in unique_accom_list
+            ]
+        )
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+        raise e
+    else:
+        print("TransactWriteItems succeeded")
+
+    # Send message to SQS
     for region in region_list:
         city_code, area_code = region.split('_')
         message = {
